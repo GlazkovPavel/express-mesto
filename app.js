@@ -6,21 +6,19 @@ const {users} = require('./routes/users');
 const { PORT = 3000, BASE_PATH } = process.env;
 const app = express();
 
-mongoose.connect('mongodb://localhost:27017/mestodb', {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-  useUnifiedTopology: true,
-  useFindAndModify: false
-}, err => {
-  console.log(err)
-})
+mongoose.connect('mongodb://localhost:27017/mestodb')
 
 app.use(bodyParser.json()); // для собирания JSON-формата
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use('/users', users);
+app.use((req, res, next) => {
+  req.user = {
+    _id: '61377c2bd5a153b8acf4d18e' // вставьте сюда _id созданного в предыдущем пункте пользователя
+  };
+  next();
+});
 
-console.log('sscscs')
+app.use('/users', users);
 
 app.listen(PORT, () => {
   console.log('Ссылка на сервер');
