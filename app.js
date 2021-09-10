@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const {users} = require('./routes/users');
 const {cards} = require('./routes/cards');
-
 const { PORT = 3000, BASE_PATH } = process.env;
 const app = express();
 

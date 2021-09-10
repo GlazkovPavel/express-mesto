@@ -1,20 +1,23 @@
+const { NOT_FOUND_ERROR, INTERNAL_SERVER_ERROR, BAD_REQUEST_ERROR} = require('../errors/errors');
+
+
 const User = require('../models/user');
 
 module.exports.getUserId = (req, res) => {
   User.findById(req.params.id)
     .then((user) => {
       if(!user){
-        res.status(404).send({ message: "Запрашиваемый пользователь не найден"})
+        res.status(NOT_FOUND_ERROR).send({ message: "Запрашиваемый пользователь не найден"})
       }
-       res.status(200).send({data: user})
+       res.send({data: user})
     })
-    .catch((err) => res.status(500).send(`Произошла ошибка: ${err.name} ${err.message}`))
+    .catch((err) => res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`))
 }
 
 module.exports.getUsers = (req, res) => {
   User.find({})
-    .then(users => res.status(200).send({data: users}))
-    .catch((err) => res.status(500).send(`Произошла ошибка: ${err.name} ${err.message}`));
+    .then(users => res.send({data: users}))
+    .catch((err) => res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`));
 };
 
 module.exports.createUser = (req, res) => {
@@ -24,10 +27,10 @@ module.exports.createUser = (req, res) => {
     .then(user => res.status(201).send({data: user}))
     .catch((err) => {
       if(err.name || err.about || err.avatar === "ValidationError"){
-        res.status(400).send({ message: "Произошла ошибка валидации"}
+        res.status(BAD_REQUEST_ERROR).send({ message: "Произошла ошибка валидации"}
         )
       }
-      res.status(500).send(`Произошла ошибка: ${err.name} ${err.message}`)
+      res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`)
     });
 };
 
@@ -36,14 +39,14 @@ module.exports.updateUser = (req, res) =>{
     { new: true, runValidators: true})
     .then((user) => {
       if(!user){
-        return res.status(404).send({ message: "Запрашиваемый пользователь не найден"})
+        return res.status(NOT_FOUND_ERROR).send({ message: "Запрашиваемый пользователь не найден"})
       }
-          return res.status(200).send({data: user})
+          return res.send({data: user})
         })
     .catch((err) => {
       if(err.name === "ValidationError" || err.name === "CastError"){
-       return res.status(400).send({ message: "Произошла ошибка валидации"}
-        )} else res.status(500).send(`Произошла ошибка: ${err.name} ${err.message}`)
+       return res.status(BAD_REQUEST_ERROR).send({ message: "Произошла ошибка валидации"}
+        )} else res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`)
     });
 }
 
@@ -52,13 +55,13 @@ module.exports.updateAvatar = (req, res) =>{
     { new: true, runValidators: true})
     .then((user) => {
       if(!user){
-        return res.status(404).send({ message: "Запрашиваемый пользователь не найден"})
+        return res.status(NOT_FOUND_ERROR).send({ message: "Запрашиваемый пользователь не найден"})
       }
-      return res.status(200).send({data: user})
+      return res.send({data: user})
     })
     .catch((err) => {
         if(err.avatar === "ValidationError" || err.avatar === "CastError"){
-          return res.status(400).send({ message: "Произошла ошибка валидации"}
-          )} else res.status(500).send(`Произошла ошибка: ${err.name} ${err.message}`)
+          return res.status(BAD_REQUEST_ERROR).send({ message: "Произошла ошибка валидации"}
+          )} else res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`)
       })
 }
