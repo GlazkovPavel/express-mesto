@@ -4,14 +4,19 @@ const { NOT_FOUND_ERROR, INTERNAL_SERVER_ERROR, BAD_REQUEST_ERROR} = require('..
 const User = require('../models/user');
 
 module.exports.getUserId = (req, res) => {
-  User.findById(req.params.id)
+  User.findById(req.params.userId)
     .then((user) => {
       if(!user){
         res.status(NOT_FOUND_ERROR).send({ message: "Запрашиваемый пользователь не найден"})
       }
        res.send({data: user})
     })
-    .catch((err) => res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`))
+    .catch((err) => {
+      if(err.name === "CastError"){
+        res.status(BAD_REQUEST_ERROR).send({ message: "Произошла ошибка валидации"})
+      } else
+      {res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`)}
+    })
 }
 
 module.exports.getUsers = (req, res) => {
@@ -26,7 +31,7 @@ module.exports.createUser = (req, res) => {
   User.create({name, about, avatar})
     .then(user => res.status(201).send({data: user}))
     .catch((err) => {
-      if(err.name || err.about || err.avatar === "ValidationError"){
+      if(err.name === "ValidationError"){
         res.status(BAD_REQUEST_ERROR).send({ message: "Произошла ошибка валидации"}
         )
       }

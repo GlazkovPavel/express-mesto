@@ -16,7 +16,7 @@ module.exports.postCard = (req, res) => {
   Card.create({name, link, owner})
     .then(card => res.status(201).send({data: card}))
     .catch((err) => {
-      if(err.name || err.link || err.owner === "ValidationError"){
+      if(err.name === "ValidationError"){
         res.status(BAD_REQUEST_ERROR).send({ message: "Произошла ошибка валидации"})
       }
       res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`)
@@ -30,7 +30,12 @@ module.exports.deleteCard = (req, res) => {
         res.send({data: card})
       } else { res.status(NOT_FOUND_ERROR).send({ message: "Данной карточки не существует"})}
       })
-    .catch(err => res.status(INTERNAL_SERVER_ERROR).send({err: err.message}))
+    .catch((err) => {
+      if(err.name === "CastError"){
+        res.status(BAD_REQUEST_ERROR).send({ message: "Произошла ошибка валидации"})
+      } else
+      {res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`)}
+    })
 };
 
 module.exports.likeCard = (req, res) => {
@@ -38,10 +43,10 @@ module.exports.likeCard = (req, res) => {
     .then((card) => {
       if(card !== null){
         res.send({data: card})
-      }})
+      } else { res.status(NOT_FOUND_ERROR).send({ message: "Данной карточки не существует"})}})
     .catch((err) => {
       if(err.name === "CastError"){
-        res.status(NOT_FOUND_ERROR).send({ message: "Данной карточки не существует"})
+        res.status(BAD_REQUEST_ERROR).send({ message: "Произошла ошибка валидации"})
       } else
       {res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`)}
     })
@@ -53,10 +58,10 @@ module.exports.dislikeCard = (req, res) => {
     .then((card) => {
       if(card !== null){
         res.send({data: card})
-      }})
+      } else { res.status(NOT_FOUND_ERROR).send({ message: "Данной карточки не существует"})}})
     .catch((err) => {
     if(err.name === "CastError"){
-      res.status(NOT_FOUND_ERROR).send({ message: "Данной карточки не существует"})
+      res.status(BAD_REQUEST_ERROR).send({ message: "Произошла ошибка валидации"})
     } else
     {res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`)}
 })}
