@@ -4,6 +4,8 @@ const bodyParser = require('body-parser');
 const { users } = require('./routes/users');
 const { cards } = require('./routes/cards');
 const wrong = require('./routes/wrong-requests');
+const { login, createUser } = require('./controllers/users')
+
 
 const { PORT = 3000, BASE_PATH } = process.env;
 const app = express();
@@ -20,11 +22,13 @@ app.use((req, res, next) => {
   next();
 });
 
+app.post('/signin', login);
+app.post('/signup', createUser);
 app.use('/users', users);
 app.use('/cards', cards);
 app.use('*', wrong);
 
 app.listen(PORT, () => {
-  console.log(`"работает на ${PORT} поту`);
+  console.log(`"работает на ${PORT} порту`);
   console.log(BASE_PATH);
 });

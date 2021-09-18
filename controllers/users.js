@@ -24,9 +24,13 @@ module.exports.getUsers = (req, res) => {
 };
 
 module.exports.createUser = (req, res) => {
-  const { name, about, avatar } = req.body;
+  const { name = 'Жак-Ив Кусто',
+    about = 'Исследователь',
+    avatar = 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+    email,
+    password} = req.body;
 
-  User.create({ name, about, avatar })
+  User.create({ name, about, avatar, email, password })
     .then((user) => res.status(201).send({ data: user }))
     .catch((err) => {
       if (err.name === 'ValidationError') {
@@ -67,3 +71,22 @@ module.exports.updateAvatar = (req, res) => {
       } return res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`);
     });
 };
+
+module.exports.login = (req, res) => {
+
+  const {email, password} = req.body;
+  console.log(email, password);
+
+  User.findOne({email})
+    .then((user) => {
+      if (user) {
+        return res.status(NOT_FOUND_ERROR).send({ message: 'Запрашиваемый пользователь не найден' });
+      }
+      return res.send({ data: user });
+    })
+    .catch((err) => {
+      if (err.avatar === 'ValidationError' || err.avatar === 'CastError') {
+        return res.status(BAD_REQUEST_ERROR).send({ message: 'Произошла ошибка валидации' });
+      } return res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`);
+    });
+}
