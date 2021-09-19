@@ -1,8 +1,46 @@
-const { NOT_FOUND_ERROR, INTERNAL_SERVER_ERROR, BAD_REQUEST_ERROR, EMAIL_CONFLICT} = require('../errors/errors');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
 const saltRounds = 10;
 
+const {
+  NOT_FOUND_ERROR, INTERNAL_SERVER_ERROR, BAD_REQUEST_ERROR, EMAIL_CONFLICT,
+} = require('../errors/errors');
+
+const JWT_SECRET = 'some-secret-key'; // в конце убрать
 const User = require('../models/user');
+
+module.exports.getCurrentUser = (req, res, next) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if (!user) {
+        throw new NotFoundError('Нет пользователя с таким id');
+      } else {
+        res.status(200).send(user);
+      }
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        throw new BadRequestErr('Введен невалидный id пользователя');
+      }
+    })
+    .catch(next);
+};
+
+module.exports.getCurrentUser = (req, res) => {
+  User.findById(req.user._id)
+    .then((user) => {
+      if(!user){
+        res.status(NOT_FOUND_ERROR).send({ message: 'Запрашиваемый пользователь не найден' });
+      }
+      res.send({ data: user });
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res.status(BAD_REQUEST_ERROR).send({ message: 'Произошла ошибка валидации' });
+      } else { res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`); }
+    });
+}
 
 module.exports.getUserId = (req, res) => {
   User.findById(req.params.userId)
@@ -31,37 +69,30 @@ module.exports.createUser = (req, res) => {
     about = 'Исследователь',
     avatar = 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     email,
-    password} = req.body;
+    password,
+  } = req.body;
 
   bcrypt.hash(password, saltRounds, (err, hash) => {
-    if(err) {
-      return res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`)
+    if (err) {
+      return res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`);
     }
 
-    User.findOne({ email })
+    return User.findOne({ email })
       .then((user) => {
         if (!user) {
-         return User.create({ name, about, avatar, email, password: hash })
+          return User.create({
+            name, about, avatar, email, password: hash,
+          })
             .then((u) => res.status(201).send({
               _id: u._id,
               name: u.name,
               about: u.about,
               avatar: u.avatar,
-            }))
-            .catch((err) => {
-              if (err.name === 'CastError') {
-                res.status(BAD_REQUEST_ERROR).send({ message: 'Произошла ошибка валидации' });
-              }
-              res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`);
-            });
+            }));
         }
         return res.status(EMAIL_CONFLICT).send({ message: 'Такой пользователь уже существует' });
-      })
-      .catch((err) => {
-        return res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`);
       });
-
-  })
+  });
 };
 
 module.exports.updateUser = (req, res) => {
@@ -97,20 +128,24 @@ module.exports.updateAvatar = (req, res) => {
 };
 
 module.exports.login = (req, res) => {
+  const { email, password } = req.body;
 
-  const {email, password} = req.body;
-  console.log(email, password);
-
-  User.findOne({email})
+  User.findOne({ email })
     .then((user) => {
-      if (user) {
-        return res.status(NOT_FOUND_ERROR).send({ message: 'Запрашиваемый пользователь не найден' });
+      if (!user) {
+        return res.status(NOT_FOUND_ERROR).send({ message: 'Неправильные почта или пароль' });
       }
-      return res.send({ data: user });
+      return bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            return res.status(NOT_FOUND_ERROR).send({ message: 'Неправильные почта или пароль' });
+          }
+          return user;
+        });
     })
-    .catch((err) => {
-      if (err.avatar === 'ValidationError' || err.avatar === 'CastError') {
-        return res.status(BAD_REQUEST_ERROR).send({ message: 'Произошла ошибка валидации' });
-      } return res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`);
-    });
-}
+    .then((verifiedUser) => {
+      const token = jwt.sign({ _id: verifiedUser._id }, JWT_SECRET, { expiresIn: '7d' });
+      return res.send({ token });
+    })
+    .catch((err) => res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`));
+};
