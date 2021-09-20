@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { NOT_AUTHORIZATION } = require('../errors/errors');
+const { NOT_AUTHORIZATION, FORBIDDEN } = require('../errors/errors');
 
 const JWT_SECRET = 'some-secret-key'; // в конце убрать
 
@@ -16,7 +16,7 @@ module.exports = (req, res, next) => {
   try {
     payload = jwt.verify(token, JWT_SECRET);
   } catch (err) {
-    return res.status(NOT_AUTHORIZATION).send({ message: 'Необходима авторизация' });
+    return res.status(FORBIDDEN).send({ message: 'Необходима авторизация' });
   }
 
   req.user = payload;

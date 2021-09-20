@@ -15,19 +15,24 @@ mongoose.connect('mongodb://localhost:27017/mestodb');
 app.use(bodyParser.json()); // для собирания JSON-формата
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// app.use((req, res, next) => {
-//   req.user = {
-//     _id: '61377c2bd5a153b8acf4d18e',
-//   };
-//   next();
-// });
-
 app.post('/signin', login);
 app.post('/signup', createUser);
 app.use(auth);
 app.use('/users', users);
 app.use('/cards', cards);
 app.use('*', wrong);
+
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+  res
+    .status(statusCode)
+    .send({
+      message: statusCode === 500
+        ? 'На сервере произошла ошибка'
+        : message,
+    });
+  next();
+});
 
 app.listen(PORT, () => {
   console.log(`"работает на ${PORT} порту`);
