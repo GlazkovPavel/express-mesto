@@ -10,22 +10,6 @@ const {
 const JWT_SECRET = 'some-secret-key'; // в конце убрать
 const User = require('../models/user');
 
-module.exports.getCurrentUser = (req, res, next) => {
-  User.findById(req.user._id)
-    .then((user) => {
-      if (!user) {
-        throw new NotFoundError('Нет пользователя с таким id');
-      } else {
-        res.status(200).send(user);
-      }
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        throw new BadRequestErr('Введен невалидный id пользователя');
-      }
-    })
-    .catch(next);
-};
 
 module.exports.getCurrentUser = (req, res) => {
   User.findById(req.user._id)
@@ -33,11 +17,11 @@ module.exports.getCurrentUser = (req, res) => {
       if(!user){
         res.status(NOT_FOUND_ERROR).send({ message: 'Запрашиваемый пользователь не найден' });
       }
-      res.send({ data: user });
+      res.send(user);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST_ERROR).send({ message: 'Произошла ошибка валидации' });
+        res.status(BAD_REQUEST_ERROR).send({ message: 'Произошла ошибка валидации getCurrentUser' });
       } else { res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`); }
     });
 }
@@ -52,7 +36,7 @@ module.exports.getUserId = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(BAD_REQUEST_ERROR).send({ message: 'Произошла ошибка валидации' });
+        res.status(BAD_REQUEST_ERROR).send({ message: 'Произошла ошибка валидации getUserId' });
       } else { res.status(INTERNAL_SERVER_ERROR).send(`Произошла ошибка: ${err.name} ${err.message}`); }
     });
 };
