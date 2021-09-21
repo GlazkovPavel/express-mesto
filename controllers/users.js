@@ -49,34 +49,37 @@ module.exports.getUsers = (req, res, next) => {
 
 module.exports.createUser = (req, res, next) => {
   const {
-    name = 'Жак-Ив Кусто',
-    about = 'Исследователь',
-    avatar = 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
-    email,
-    password,
+      name = 'Жак-Ив Кусто',
+      about = 'Исследователь',
+      avatar = 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+      email,
+      password,
   } = req.body;
 
-  bcrypt.hash(password, saltRounds, (err, hash) => User.findOne({ email })
+  User.findOne({ email })
     .then((user) => {
-      if (!user) {
-        return User.create({
-          name, about, avatar, email, password: hash,
-        })
-          .then((u) => res.status(201).send({
-            _id: u._id,
-            name: u.name,
-            about: u.about,
-            avatar: u.avatar,
-          }));
+      if (user) {
+        throw new ConflictErr('Пользователь с таким email уже существует');
       }
-      throw new ConflictErr('Такой пользователь уже существует');
-    }))
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        throw new BadRequestErr('Введены невалидные данные');
-      }
+      return bcrypt.hash(password, saltRounds);
     })
-
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash
+    })
+      .then((user) => res.status(201).send({
+        user: {
+          name: user.name,
+          about: user.about,
+          avatar: user.avatar,
+          _id: user._id,
+          email: user.email,
+        },
+      }))
+      .catch((err) => {
+        if (err.name === 'ValidationError') {
+          throw new BadRequestErr('Введены невалидные данные');
+        }
+      }))
     .catch(next);
 };
 
