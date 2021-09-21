@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { celebrate, Joi} = require('celebrate');
+const { celebrate, Joi } = require('celebrate');
 const { users } = require('./routes/users');
 const { cards } = require('./routes/cards');
 const wrong = require('./routes/wrong-requests');

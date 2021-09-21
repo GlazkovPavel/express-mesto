@@ -49,11 +49,11 @@ module.exports.getUsers = (req, res, next) => {
 
 module.exports.createUser = (req, res, next) => {
   const {
-      name = 'Жак-Ив Кусто',
-      about = 'Исследователь',
-      avatar = 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
-      email,
-      password,
+    name = 'Жак-Ив Кусто',
+    about = 'Исследователь',
+    avatar = 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+    email,
+    password,
   } = req.body;
 
   User.findOne({ email })
@@ -64,7 +64,7 @@ module.exports.createUser = (req, res, next) => {
       return bcrypt.hash(password, saltRounds);
     })
     .then((hash) => User.create({
-      name, about, avatar, email, password: hash
+      name, about, avatar, email, password: hash,
     })
       .then((user) => res.status(201).send({
         user: {

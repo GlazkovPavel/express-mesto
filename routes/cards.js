@@ -1,5 +1,5 @@
 const cards = require('express').Router();
-const { celebrate, Joi} = require('celebrate');
+const { celebrate, Joi } = require('celebrate');
 const {
   getCards, deleteCard, dislikeCard, likeCard, postCard,
 } = require('../controllers/cards');
@@ -14,9 +14,8 @@ cards.post('/', celebrate({
 }), postCard);
 
 cards.delete('/:cardId', celebrate({
-  params: Joi.object().keys({
-    cardId: Joi.string().required().length(24)})
-  }), deleteCard);
+  params: Joi.object().keys({ cardId: Joi.string().required().length(24) }),
+}), deleteCard);
 
 cards.put('/:cardId/likes', celebrate({
   params: Joi.object().keys({
