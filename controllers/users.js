@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 
 const saltRounds = 10;
 
-const JWT_SECRET = 'some-secret-key'; // в конце убрать
+const { NODE_ENV, JWT_SECRET } = process.env;
 const User = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
 const BadRequestErr = require('../errors/bad-request-err');
@@ -134,7 +134,9 @@ module.exports.login = (req, res, next) => {
         });
     })
     .then((verifiedUser) => {
-      const token = jwt.sign({ _id: verifiedUser._id }, JWT_SECRET, { expiresIn: '7d' });
+      const token = jwt.sign({ _id: verifiedUser._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+        { expiresIn: '7d' });
       return res.send({ token });
     })
     .catch(next);
