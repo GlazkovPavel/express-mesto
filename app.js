@@ -4,7 +4,7 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const { celebrate, Joi } = require('celebrate');
-const { rateLimit } = require('express-rate-limit');
+const rateLimit  = require('express-rate-limit');
 const { users } = require('./routes/users');
 const { cards } = require('./routes/cards');
 const wrong = require('./routes/wrong-requests');
@@ -22,7 +22,10 @@ app.use(bodyParser.json()); // для собирания JSON-формата
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(helmet());
-//app.use(rateLimit);
+app.use(rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100
+}));
 
 app.post('/signup', celebrate({
   body: Joi.object().keys({
