@@ -3,14 +3,14 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
-const { celebrate, Joi } = require('celebrate');
-const rateLimit  = require('express-rate-limit');
+const { celebrate, Joi, errors } = require('celebrate');
+const rateLimit = require('express-rate-limit');
 const { users } = require('./routes/users');
 const { cards } = require('./routes/cards');
 const wrong = require('./routes/wrong-requests');
 const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
-const error = require('./middlewares/error');
+const errorHanding = require('./middlewares/error');
 const { methodValidator } = require('./middlewares/methodValidator');
 
 const { PORT = 3000, BASE_PATH } = process.env;
@@ -24,7 +24,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(helmet());
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: 100
+  max: 100,
 }));
 
 app.post('/signup', celebrate({
@@ -48,8 +48,9 @@ app.use(auth);
 app.use('/users', users);
 app.use('/cards', cards);
 app.use('*', wrong);
+app.use(errors());
 
-app.use(error);
+app.use(errorHanding);
 
 app.listen(PORT, () => {
   console.log(`"работает на ${PORT} порту`);
