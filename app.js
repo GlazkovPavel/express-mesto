@@ -12,6 +12,7 @@ const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const errorHanding = require('./middlewares/error');
 const { methodValidator } = require('./middlewares/methodValidator');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const { PORT = 3000, BASE_PATH } = process.env;
 const app = express();
@@ -26,6 +27,8 @@ app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
 }));
+
+app.use(requestLogger);
 
 app.post('/signup', celebrate({
   body: Joi.object().keys({
@@ -48,6 +51,9 @@ app.use(auth);
 app.use('/users', users);
 app.use('/cards', cards);
 app.use('*', wrong);
+
+app.use(errorLogger);
+
 app.use(errors());
 
 app.use(errorHanding);
