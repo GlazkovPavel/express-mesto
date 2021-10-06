@@ -13,7 +13,7 @@ const auth = require('./middlewares/auth');
 const errorHanding = require('./middlewares/error');
 const { methodValidator } = require('./middlewares/methodValidator');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const cors = require('cors');
+//const cors = require('cors');
 
 // const options = {
 //   origin: [
