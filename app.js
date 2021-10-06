@@ -12,7 +12,7 @@ const { login, createUser } = require('./controllers/users');
 const auth = require('./middlewares/auth');
 const errorHanding = require('./middlewares/error');
 const { methodValidator } = require('./middlewares/methodValidator');
-const { requestLogger, errorLogger } = require('./middlewares/logger');
+//const { requestLogger, errorLogger } = require('./middlewares/logger');
 const cors = require('cors');
 
 const options = {
@@ -45,7 +45,7 @@ app.use(rateLimit({
   max: 100,
 }));
 
-app.use(requestLogger);
+//app.use(requestLogger);
 
 app.post('/signup', celebrate({
   body: Joi.object().keys({
@@ -69,7 +69,7 @@ app.use('/users', users);
 app.use('/cards', cards);
 app.use('*', wrong);
 
-app.use(errorLogger);
+//app.use(errorLogger);
 
 app.use(errors());
 
