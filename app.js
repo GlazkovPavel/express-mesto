@@ -21,11 +21,7 @@ const options = {
     'http://mesto.glazkovpavel.nomoredomains.club',
     'https://mesto.glazkovpavel.nomoredomains.club',
   ],
-  methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-  preflightContinue: false,
-  optionsSuccessStatus: 204,
-  allowedHeaders: ['Content-Type', 'origin', 'Authorization', 'Accept'],
-  credentials: true,
+  optionsSuccessStatus: 204
 };
 
 const { PORT = 3000, BASE_PATH } = process.env;
