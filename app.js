@@ -13,7 +13,7 @@ const auth = require('./middlewares/auth');
 const errorHanding = require('./middlewares/error');
 const { methodValidator } = require('./middlewares/methodValidator');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
-const cors = require('cors');
+const cors = require('cors')
 
 // const options = {
 //   origin: [
@@ -32,7 +32,7 @@ const cors = require('cors');
 const { PORT = 3000, BASE_PATH } = process.env;
 const app = express();
 
-app.use(cors());
+app.use(cors);
 
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
