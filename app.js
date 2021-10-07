@@ -15,24 +15,10 @@ const { methodValidator } = require('./middlewares/methodValidator');
 const { requestLogger, errorLogger } = require('./middlewares/logger');
 const cors = require('cors')
 
-// const options = {
-//   origin: [
-//     'http://localhost:3000',
-//     'http://localhost:3001',
-//     'http://mesto.glazkovpavel.nomoredomains.club',
-//     'https://mesto.glazkovpavel.nomoredomains.club',
-//   ],
-//   // methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-//   // preflightContinue: false,
-//   // optionsSuccessStatus: 204,
-//   // allowedHeaders: ['Content-Type', 'origin', 'Authorization', 'Accept'],
-//   credentials: true,
-// };
-
 const { PORT = 3000, BASE_PATH } = process.env;
 const app = express();
 
-app.use(cors);
+app.use(cors());
 
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
